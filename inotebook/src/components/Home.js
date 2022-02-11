@@ -4,7 +4,7 @@ import Notes from "./Notes";
 function Home(props) {
   return (
     <div>
-      <Notes />
+      <Notes showAlert={props.showAlert} />
     </div>
   );
 }

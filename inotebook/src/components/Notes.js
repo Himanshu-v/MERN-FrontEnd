@@ -1,10 +1,11 @@
-import React, { useContext, useState, useRef } from "react";
+import React, { useContext, useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import NoteContext from "../context/notes/NoteContext";
 import AddNote from "./AddNote";
 import Noteitem from "./Noteitem";
-function Notes() {
+function Notes(props) {
   const noteContext = useContext(NoteContext);
-  const { notes, editNote } = noteContext;
+  const { notes, editNote, deleteNote, fetchAllNotes } = noteContext;
   const ref = useRef(null);
   const refClose = useRef(null);
   const [note, setNote] = useState({
@@ -13,6 +14,8 @@ function Notes() {
     edescription: "",
     etag: "Def",
   });
+  const { showAlert } = props;
+  const navigate = useNavigate();
 
   const updateNote = async (currentNote) => {
     const { _id, title, description, tag } = currentNote;
@@ -33,7 +36,21 @@ function Notes() {
     console.log(note);
     editNote(id, etitle, edescription, etag);
     refClose.current.click();
+    showAlert("Updated Successfully", "success");
   };
+
+  const handleDelete = async (id) => {
+    await deleteNote(id);
+    showAlert("Deleted Successfully", "success");
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem("authtoken")) {
+      fetchAllNotes();
+    } else {
+      navigate("/login");
+    }
+  }, []);
 
   return (
     <>
@@ -46,7 +63,7 @@ function Notes() {
         data-bs-target="#exampleModal"
         hidden="true"
       >
-        Launch demo modal
+        Open edit modal
       </button>
 
       <div
@@ -141,7 +158,12 @@ function Notes() {
         <h2>Your notes:</h2>
         {notes.map((note) => {
           return (
-            <Noteitem key={note._id} updateNote={updateNote} note={note} />
+            <Noteitem
+              key={note._id}
+              updateNote={updateNote}
+              handleDelete={handleDelete}
+              note={note}
+            />
           );
         })}
       </div>

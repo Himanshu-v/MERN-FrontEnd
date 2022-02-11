@@ -1,17 +1,15 @@
-import React, { useState } from "react";
-
-function Login() {
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import AuthContext from "../context/Auth/AuthContext";
+function Login(props) {
   const host = "http://localhost:5000";
-
-  const [creds, setCreds] = useState({
-    email: "",
-    password: "",
-  });
+  const navigate = useNavigate();
+  const [creds, setCreds] = useState({ email: "", password: "" });
+  const authContext = useContext(AuthContext);
+  const { authtoken, setAuthentication } = authContext;
 
   const onChange = (e) => {
-    console.log({ [e.target.name]: e.target.value });
     setCreds({ ...creds, [e.target.name]: e.target.value });
-    console.log(creds);
   };
 
   const fetchData = (endPoint, method, body) => {
@@ -20,16 +18,32 @@ function Login() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: body,
+      body: JSON.stringify(body),
     });
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(creds);
     const response = await fetchData("login", "POST", creds);
     console.log(response);
+
+    let auth = await response.json();
+
+    if (response.status === 200) {
+      console.log(auth);
+      localStorage.setItem("authtoken", auth.authtoken);
+      console.log(("authtoken", auth.authtoken));
+      await setAuthentication(auth.authtoken);
+      console.log(authtoken);
+      navigate("/");
+      props.showAlert("Login Successfull", "success");
+    } else {
+      props.showAlert("Invalid credentials", "warning");
+    }
   };
   return (
-    <div className="container">
+    <div>
+      <div style={{ height: "30px" }}></div>
       <h2> Enter Login Details </h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3 my-3">
@@ -39,8 +53,9 @@ function Login() {
           <input
             type="email"
             className="form-control"
-            id="email"
             value={creds.email}
+            id="email"
+            name="email"
             onChange={onChange}
             aria-describedby="email"
           />
@@ -52,8 +67,9 @@ function Login() {
           <input
             type="password"
             className="form-control"
-            id="password"
+            name="password"
             value={creds.password}
+            id="password"
             onChange={onChange}
           />
         </div>

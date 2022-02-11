@@ -1,11 +1,11 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import NoteContext from "../context/notes/NoteContext";
 
 export default function AddNote(props) {
   const noteContext = useContext(NoteContext);
-  const { addNote, fetchAllNotes } = noteContext;
+
+  const { addNote } = noteContext;
   const [note, setNote] = useState({ title: "", description: "", tag: "" });
-  const { isEdit } = props;
   const onChange = (e) => {
     setNote({ ...note, [e.target.name]: e.target.value });
   };
@@ -15,9 +15,6 @@ export default function AddNote(props) {
     setNote({ title: "", description: "", tag: "" });
   };
 
-  useEffect(() => {
-    fetchAllNotes();
-  }, []);
   return (
     <div className="container my-3">
       <h2>Add a note.</h2>

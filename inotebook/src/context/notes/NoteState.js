@@ -1,27 +1,37 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import NoteContext from "./NoteContext";
+import AuthContext from "../Auth/AuthContext";
 
 const NoteState = (props) => {
   const host = "http://localhost:5000";
   const initNote = [];
   const [notes, setNotes] = useState(initNote);
+  const authContext = useContext(AuthContext);
+  const { authtoken, setAuthentication } = authContext;
 
   const apiCall = (endPoint, method, body) => {
     return fetch(`${host}/api/notes/${endPoint}`, {
       method: `${method}`,
       headers: {
         "Content-Type": "application/json",
-        "auth-token":
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjIwMGU1ODE1Nzc5YzNiYjkyMTUwMTMxIn0sImlhdCI6MTY0NDIyNTk3Mn0.qoiy2iZ1CddJojubyIxAUk0bX518-VUhfF7Jnr99V9U",
+        "auth-token": authtoken ? authtoken : localStorage.getItem("authtoken"),
       },
       body: body,
     });
   };
   //Fetch all notes
+
   const fetchAllNotes = async () => {
-    const response = await apiCall("fetchallnotes", "GET");
-    let json = await response.json();
-    setNotes(json);
+    if (!authtoken && localStorage.getItem("authtoken") !== null) {
+      setAuthentication(localStorage.getItem("authtoken"));
+    }
+    if (authtoken || localStorage.getItem("authtoken") !== null) {
+      var response = await apiCall("fetchallnotes", "GET");
+      if (response.status === 200) {
+        let json = await response.json();
+        setNotes(json);
+      }
+    }
   };
 
   //Add a note

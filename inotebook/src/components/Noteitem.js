@@ -1,14 +1,7 @@
-import React, { useContext } from "react";
-import NoteContext from "../context/notes/NoteContext";
+import React from "react";
 
 function Noteitem(props) {
-  const { note, updateNote } = props;
-  const noteContext = useContext(NoteContext);
-  const { deleteNote } = noteContext;
-
-  const handleDelete = (id) => {
-    deleteNote(id);
-  };
+  const { note, updateNote, handleDelete } = props;
 
   return (
     <div className="col-md-3">
